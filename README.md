@@ -46,8 +46,8 @@
 </p>
 
 <!-- TABLE OF CONTENTS -->
-<details>
   <summary>Table of Contents</summary>
+  <ol>
     <li><a href="#about">About The Project</a></li>
     <li><a href="#buildwith">Built With</a></li>
     <li><a href="#install">Installation</a></li>
@@ -56,7 +56,7 @@
     <li><a href="#keyfindings">Key Findings</a></li>
     <li><a href="#future">Future Improvments</a></li>
     <li><a href="#license">License</a></li>
-</details>
+</ol>
 
 <!-- ABOUT THE PROJECT -->
 <a id="about"></a>
@@ -134,7 +134,7 @@ See the [open issues](https://github.com/notdessa/bellabeat_casestudy_andressa/i
 -**FitBit Fitness Tracker Data**: [Kaggle Dataset](https://www.kaggle.com/datasets/arashnic/fitbit) by Arash Nic (CC0 Public Domain). Accessed May 2025.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-<!-- MARKDOWN LINKS & IMAGES -->https://github.com/notdessa/bellabeat_casestudy_andressa
+<!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [contributors-shield]: https://img.shields.io/github/contributors/notdessa/bellabeat_casestudy_andressa.svg?style=for-the-badge
 [contributors-url]: https://github.com/notdessa/bellabeat_casestudy_andressa/graphs/contributors
