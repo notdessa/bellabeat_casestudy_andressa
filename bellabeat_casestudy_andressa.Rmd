@@ -1,0 +1,278 @@
+---
+title: 'Case Study: How can a wellness company play it smart?'
+author: "Andressa Silva"
+date: "2025-05-02"
+output: html_document
+---
+
+## Intro
+This is a Case Study on figuring out *"How can a wellness company play it smart?"*.
+
+### The company
+Urška Sršen and Sando Mur founded Bellabeat, a high-tech company that manufactures health-focused sma  products. Sršen used her background as an aist to develop beautifully designed technology that informs and inspires women around the world. Collecting data on activity, sleep, stress, and reproductive health has allowed Bellabeat to empower women with knowledge about their own health and habits. Since it was founded in 2013, Bellabeat has grown rapidly and quickly positioned itself as a tech-driven wellness company for women.
+
+## ASK - Business challenge
+
+> How can Bellabeat find more opportunities to grow by analyzing smart device usage data to understand how to improve their health and wellness.
+
+The key stakeholders include:
+
+- **Urška Sršen**: Chief Creative Officer and Bellabeat’s Co-founder.
+- **Sando Mur**: Mathematician and Bellabeat’s Co-founder.
+- **Bellabeat’s marketing analytics team**: a team of data analysts.
+
+### Data Sources
+- **FitBit Fitness Tracker Data**: [Kaggle Dataset](https://www.kaggle.com/datasets/arashnic/fitbit) by Arash Nic (CC0 Public Domain). Accessed May 2025.
+
+## PREPARE
+- The data is long format with ID and DATE variables making it easy for merging multiple datasets to create a wide format data .
+- The data fall into the  **Reliable**, **Original**, **Comprehensible**, **Cited** but it’s not **Current** not passing at the ROCCC checklist. The data is from 2016 and not uptodate with todays technology advances (2025).
+- The datasets were verified to be public domain. I checked sources making sure I got the raw original data. The fields from the dataset has relevant data that helps understand the usage of smart devices and its relevance. 
+- And finally, there was no problems detected on the data.
+
+## PROCESS
+-  I used Google Sheets for an overall view of the data, I find it faster to check column names and gross possible problems. Then used R for cleaning, preparing and visualization.
+- Ensured your datas integrity by making copies when making any manipulation and double checking number of columns and rows whenever modifying it.
+-   Checked for unique IDs, Na values in key columns, duplicates and transformed date format to make it uniform, converted the data to lowercase with underscores and removed special characters.
+-   Verified that the data is clean and ready to analyze by checking data’s summanry with commands like: `head(dataframe)`, `str(dataframe)` and `glimpse(dataframe)`.
+-   The cleaning process is also documented as comments as I code in order to review and share my results.
+
+For this case Im working with the following dataframes:
+
+-   *dailyActivity_merged.csv*
+-   *dailyCalories_merged.csv*
+-   *dailyIntensities_merged.csv*
+-   *dailySteps_merged.csv*
+-   *sleepDay_merged.csv*
+
+Using sheets, I removed duplicates. *sleepDay_merged.csv* had 3 duplicates. Also renamed the columns names and checked for whitespaces to facilitate further coding with R.
+
+##### Loading relevant libraries.
+
+```{r Load the packages, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)    # For data manipulation and visualization
+library(janitor)      # For data cleaning functions
+library(dplyr)        # For data manipulation functions
+library(lubridate)    #For parse dates
+library(ggplot2)      #For viz
+library(tidyr)        #For cleaning and preparing data
+```
+##### Created copies of the raw data, unified the naming system, cleaning names and loaded into R
+```{r Load data, echo=TRUE, message=FALSE, warning=FALSE}
+daily_activity <- read_csv("~/Documents/Data Science/Data /bellabeat_casestudy_andressa/data/Copy_dailyActivity_merged.csv") %>% clean_names()
+daily_calories <- read_csv("~/Documents/Data Science/Data /bellabeat_casestudy_andressa/data/Copy_dailyCalories_merged.csv") %>% clean_names()
+daily_intensitie <- read_csv("~/Documents/Data Science/Data /bellabeat_casestudy_andressa/data/Copy_dailyIntensities_merged.csv") %>% clean_names()
+daily_steps <- read_csv("~/Documents/Data Science/Data /bellabeat_casestudy_andressa/data/Copy_dailySteps_merged.csv") %>% clean_names()
+daily_sleep <- read_csv("~/Documents/Data Science/Data /bellabeat_casestudy_andressa/data/Copy_sleepDay_merged.csv") %>% clean_names()
+```
+## ANALYZE
+##### Checking unique participants for each dataset
+```{r See unique participants for each dataset, echo=TRUE, message=FALSE, warning=FALSE}
+n_distinct(daily_activity$id)
+n_distinct(daily_calories$id)
+n_distinct(daily_intensitie$id)
+n_distinct(daily_steps$id)
+n_distinct(daily_sleep$id)
+```
+### Important insight
+Not every participant responded daily sleep.The difference in participant counts between your sleep dataset (24 users) and other datasets (33 users) is significant and worth exploring. Which we'll dive into possibilities why further into the Analyze phase. Let's create an unique dataframe to work on, to easy the coding:
+```{r Cretae and Merge datasets}
+dataset_list <- list(
+  daily_activity, 
+  daily_calories, 
+  daily_intensitie, 
+  daily_sleep, 
+  daily_steps
+)
+
+merged_data <- dataset_list %>%
+  reduce(full_join, by = c("id", "activitydate"))
+```
+##### Let's take a look at the merged result!
+```{r Check structure}
+glimpse(merged_data)
+```
+
+##### Now for cleaning, let's check for NA values in key columns, clean all column names and convert data type.
+```{r check for NA values in key columns, clean all column names and convert data type}
+sum(is.na(merged_data$id))
+sum(is.na(merged_data$activitydate))
+
+merged_clean <- merged_data %>%
+  clean_names() %>% 
+  rename_with(~str_remove_all(., "\\W+")) %>%  
+  rename(
+    id = matches("^id$|^i_d$|participant"),  
+    activity_date = matches("activitydate|date|^day$") 
+  )
+
+merged_clean <- merged_clean %>%
+  mutate(
+    activity_date = parse_date_time(
+      activity_date,
+      orders = c("ymd", "mdy", "dmy", "Y-m-d", "m/d/Y")
+    ) %>% as.Date()
+  ) 
+```
+
+##### For the analysis, I'll create relevant values, such as `day_of_week`, `is_weekend`, `week_of_year` and `activity_level`.
+```{r Create useful derived features}
+merged_analysis <- merged_clean %>%
+  mutate(
+    day_of_week = weekdays(activity_date),
+    is_weekend = day_of_week %in% c("Saturday", "Sunday"),
+    week_of_year = week(activity_date),
+    
+    activity_level = case_when(
+      step_total > 10000 ~ "high",
+      step_total > 5000 ~ "medium",
+      TRUE ~ "low"
+    ))
+```
+##### To secure the cleaning and preparation made so far, let's save the work done into a new .csv file
+```{r saving the merged data}
+write_csv(merged_analysis, "fitbit_data_merged.csv")
+```
+
+##### Now we can go back at why do we have less participants for `daily_sleep`.
+```{r Compare activity levels of users with/without sleep data}
+merged_analysis %>%
+  mutate(has_sleep_data = !is.na(total_time_in_bed)) %>%
+  group_by(has_sleep_data) %>%
+  summarise(avg_steps = mean(total_steps, na.rm = TRUE),
+            avg_active_mins = mean(very_active_minutes_x, na.rm = TRUE))
+```
+##### We see that users without sleep data has less steps and active minutes. We can considering the following variables for that:
+- Some users may consistently remove their devices at night
+- Some trackers may not have sleep tracking capabilities
+- Tech issues with syncing problems specific to sleep data
+
+##### Let's follow up with some more visualization.
+```{r Step Count Distribution by Activity Level  }
+ggplot(merged_analysis, aes(x = total_steps, fill = activity_level)) +
+  geom_density(alpha = 0.6) +
+  labs(title = "Step Count Distribution by Activity Level",
+       x = "Total Daily Steps",
+       y = "Density",
+       fill = "Activity Level") +
+  scale_fill_manual(
+    values = c("low" = "#d62828",       
+               "medium" = "#fcbf49", 
+               "high" = "#003049"),  
+    name = "Activity Level"      
+  ) +
+  theme_minimal()
+```
+
+##### By checking step count distribution by activity level we can see a natural break point in low activity level users.
+
+```{r echo=FALSE}
+# Prepare the data
+heatmap_data <- merged_analysis %>%
+  mutate(day_of_week = lubridate::wday(activity_date, label = TRUE)) %>%
+  group_by(day_of_week) %>%
+  summarise(
+    sedentary = mean(sedentary_minutes_x),
+    light = mean(lightly_active_minutes_x),
+    moderate = mean(fairly_active_minutes_x),
+    vigorous = mean(very_active_minutes_x)
+  ) %>%
+  pivot_longer(cols = -day_of_week, names_to = "intensity", values_to = "minutes")
+
+```
+
+
+```{r Heatmap for activity density by day of week}
+ggplot(heatmap_data, aes(x = day_of_week, y = intensity, fill = minutes)) +
+  geom_tile(color = "#c7f9cc") +
+  scale_fill_gradient(low = "#fdcc6d", high = "#e75414") +
+  labs(title = "Average Activity Intensity by Day of Week",
+       x = "",
+       y = "Activity Intensity",
+       fill = "Minutes") +
+  theme_minimal() +
+  geom_text(aes(label = round(minutes)), color = "black", size = 3)
+```
+
+##### By this heat map we can see users' activity intensity by day of week. 
+
+-  It's very distant the difference between sedentary time, it dominates all days. 
+-  The problem we can see is that users spent most of their time inactive with very little room for relevant intense activity. 
+-  Monday is the most inactive day of the week in counterpart, participants are less sedentary on thw weekends!
+
+```{r step distance relationship}
+ggplot(merged_analysis, aes(x = total_steps, y = total_distance)) +
+  geom_point(aes(color = activity_level), alpha = 0.6) +
+  geom_smooth(method = "lm", color = "black") +
+  labs(title = "Relationship Between Steps and Distance",
+       x = "Total Steps",
+       y = "Total Distance (miles/km)",
+       color = "Activity Level") +
+  scale_color_manual(
+    values = c("low" = "#d62828",   
+               "medium" = "#fcbf49",
+               "high" = "#003049"),
+    name = "Activity Level"        
+  )
+```
+
+##### Step to distance ratio is consistent across users!
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+timeline_data <- merged_analysis %>%
+  select(activity_date,
+         Sedentary = sedentary_minutes_x,
+         Light = lightly_active_minutes_x,
+         Moderate = fairly_active_minutes_x,
+         Vigorous = very_active_minutes_x) %>%
+  pivot_longer(cols = -activity_date, 
+               names_to = "intensity", 
+               values_to = "minutes") %>%
+  mutate(intensity = factor(intensity, 
+                            levels = c("Sedentary", "Light", "Moderate", "Vigorous"),
+                            ordered = TRUE))
+
+ggplot(timeline_data, aes(x = activity_date, y = minutes, color = intensity)) +
+  geom_point(alpha = 0.2, size = 1.5) +
+  geom_smooth(method = "loess", se = FALSE, size = 1.2) +
+  labs(title = "Daily Activity Intensity Trends",
+       subtitle = "All intensity levels shown together",
+       x = "Date", 
+       y = "Minutes",
+       color = "Activity Intensity") +
+  scale_color_manual(values = c("Sedentary" = "#d62828",
+                                "Light" = "#f77f00",
+                                "Moderate" = "#fcbf49",
+                                "Vigorous" = "#003049")) +
+  theme_minimal() +
+  scale_x_date(date_breaks = "1 week", date_labels = "%b %d") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "bottom")
+```
+
+##### We can see that throughout the whole time data was collected the activity remained the same.
+
+## SHARE 
+### Final conclusion and next steps
+
+It would be great to capture data for the entire year to make sure this trend is not seasonal, if there are direct influences of weather, holiday seasoning, hormonal cycle or something else that might affect the results.
+
+**For the activity density by day of the week**:
+
+- Focus on reducing sedentary time rather than just increasing vigorous activity
+- Campaign for Active Monday
+- Create involving challenges to assure less sedentary time over the week
+
+**For the natural break point in low activity level users**:
+
+- Investigate what could be causing the break point, if its possible to identify the user that will fall into the low activity level
+- Consider implement a feature that will motivate the user to maintain their activity strike
+
+**For the sleep data having less participants compared to the other datasets**: 
+
+- Investigate if the sleep tracking feature is difficult to use
+- Check if users need education about sleep tracking benefits
+- Consider automatic sleep detection
+
+Here I end my case study! Thank you for reading, feedback wil be greatly appreciated!
