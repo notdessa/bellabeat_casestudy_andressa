@@ -66,7 +66,7 @@
 This is a Case Study on figuring out *"How can a wellness company play it smart?"*.
 > How can Bellabeat find more opportunities to grow by analyzing smart device usage data to understand how to improve their health and wellness.
 
-<p align="right">(<a href="readme-top">back to top</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
@@ -88,7 +88,7 @@ git clone https://github.com/notdessa/bellabeat_casestudy_andressa.git
 # Install R dependencies
 install.packages(c("tidyverse", "ggplot2", "lubridate", "janitor", "dplyr", "tidyr" ))
 ```
-<p align="right">(<a href="readme-top">back to top</a>)</p>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ROADMAP -->
 <a id="roadmap"></a>
