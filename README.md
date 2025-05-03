@@ -134,6 +134,8 @@ See the [open issues](https://github.com/notdessa/bellabeat_casestudy_andressa/i
 -**FitBit Fitness Tracker Data**: [Kaggle Dataset](https://www.kaggle.com/datasets/arashnic/fitbit) by Arash Nic (CC0 Public Domain). Accessed May 2025.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<iframe src="https://www.kaggle.com/embed/notdessa/bellabeat-case-study?cellIds=1&kernelSessionId=237625892" height="300" style="margin: 0 auto; width: 100%; max-width: 950px;" frameborder="0" scrolling="auto" title="Bellabeat Case Study"></iframe>
+
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [contributors-shield]: https://img.shields.io/github/contributors/notdessa/bellabeat_casestudy_andressa.svg?style=for-the-badge
