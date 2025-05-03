@@ -1,5 +1,5 @@
 
-
+<a id="readme-top"></a>
 
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <!--
@@ -48,14 +48,14 @@
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
-    <li><a href="about">About The Project</a></li>
-    <li><a href="buildwith">Built With</a></li>
-    <li><a href="install">Installation</a></li>
-    <li><a href="roadmap">Roadmap</a></li>
-    <li><a href="keyviz">Key Visualizations</a></li>
-    <li><a href="keyfindings">Key Findings</a></li>
-    <li><a href="future">Future Improvments</a></li>
-    <li><a href="license">License</a></li>
+    <li><a href="#about">About The Project</a></li>
+    <li><a href="#buildwith">Built With</a></li>
+    <li><a href="#install">Installation</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#keyviz">Key Visualizations</a></li>
+    <li><a href="#keyfindings">Key Findings</a></li>
+    <li><a href="#future">Future Improvments</a></li>
+    <li><a href="#license">License</a></li>
 </details>
 
 <!-- ABOUT THE PROJECT -->
